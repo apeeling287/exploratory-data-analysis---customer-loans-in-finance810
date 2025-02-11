@@ -37,6 +37,7 @@ class RDSDatabaseConnector:
             df = pd.read_sql_table('loan_payments', conn)
             df.head()
             print(df)
+            df.to_csv('loan_payments.csv')
 
 
 credentials = load_yaml("credentials.yaml")
