@@ -33,10 +33,14 @@ class RDSDatabaseConnector:
         # with self.engine.connect() as conn:
         #     result = conn.execute(text("select 'hello world'"))
         #     print(result.all())
-        pass
+        with self.engine.connect() as conn:
+            df = pd.read_sql_table('loan_payments', conn)
+            df.head()
+            print(df)
 
 
 credentials = load_yaml("credentials.yaml")
 
 my_database = RDSDatabaseConnector(credentials)
 my_database.SQL_alchemy_connection()
+my_database.extract_data()
