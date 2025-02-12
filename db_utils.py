@@ -17,7 +17,14 @@ def df_to_csv(df):
     converts dataframe to csv file
     '''
     df.to_csv("loan_payments.csv")
-    print("exporting to csv")
+    print("exporting to csv...")
+
+def csv_to_df(csv):
+    print("importing csv to pandas dataframe")
+    df = pd.read_csv(csv)
+    df.shape
+    df.info()
+    df.describe()
 
 
 class RDSDatabaseConnector:
@@ -32,7 +39,7 @@ class RDSDatabaseConnector:
         initialise SQLAlchemy engine 
         '''
         self.engine = create_engine(f"{self.my_dict['DATABASE_TYPE']}+{self.my_dict['DBAPI']}://{self.my_dict['RDS_USER']}:{self.my_dict['RDS_PASSWORD']}@{self.my_dict['RDS_HOST']}:{self.my_dict['RDS_PORT']}/{self.my_dict['RDS_DATABASE']}")
-        print("Database connected")
+        print("Database connected...")
 
     def extract_data(self, sql_table):
         '''
@@ -47,5 +54,8 @@ credentials = load_yaml("credentials.yaml")
 my_database = RDSDatabaseConnector(credentials)
 my_database.SQL_alchemy_connection()
 loan_payments_df = my_database.extract_data('loan_payments')
-
 df_to_csv(loan_payments_df)
+csv_to_df("loan_payments.csv")
+
+
+
