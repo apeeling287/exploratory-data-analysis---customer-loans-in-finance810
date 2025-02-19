@@ -1,7 +1,7 @@
 import yaml
 from sqlalchemy import create_engine
 import pandas as pd
-import numpy as np
+from scipy.stats import normaltest
 
 
 def load_yaml(yaml_file):
@@ -103,7 +103,6 @@ class DataFrameInfo:
     
     def count_of_nulls(self):
         null_count = self.df.isnull().sum()
-        #print(f"NaN count per column:\n{null_count}" )
         print("percentage and count of missing values: ")
         percent_missing = round(self.df.isnull().sum() * 100 / len(self.df), 2)
         missing_values_df = pd.DataFrame({"percentage_missing":percent_missing,
@@ -111,6 +110,36 @@ class DataFrameInfo:
                                           })
         return missing_values_df
  
+class Plotter:
+    '''
+    visualises insights from the data
+    '''
+    def __init__(self):
+        pass
+
+
+class DataFrameTransform(DataFrameInfo):
+    '''
+    perform EDA transformations
+    '''
+    def __init__(self, df):
+        self.df = df
+
+    def count_of_nulls(self):
+        return super().count_of_nulls()
+
+    def drop_columns(self, columns_to_drop):
+        self.df = self.df.drop(self.df.columns[columns_to_drop], axis=1)
+        return self.df
+    
+    def impute(self, columns_to_impute):
+        data = self.df[columns_to_impute]
+        stat, p = normaltest(data, nan_policy='omit')
+        print("Statistics=%.3f, p=%.3f" % (stat, p))
+
+
+
+
 
 
 if __name__ == "__main__":
