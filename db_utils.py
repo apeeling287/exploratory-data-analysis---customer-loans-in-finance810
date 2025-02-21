@@ -111,6 +111,7 @@ class DataFrameInfo:
         missing_values_df = missing_values_df.reset_index()
         return missing_values_df
  
+
 class Plotter:
     '''
     visualises insights from the data
@@ -133,12 +134,18 @@ class DataFrameTransform(DataFrameInfo):
         self.df = self.df.drop(self.df.columns[columns_to_drop], axis=1)
         return self.df
     
-    def impute(self, columns_to_impute):
+    def drop_rows_with_NaN(self, *args):
+        self.df = self.df.dropna(subset=args)
+        return self.df
+    
+    def normaltest(self, columns_to_impute):
         data = self.df[columns_to_impute]
         stat, p = normaltest(data, nan_policy='omit')
         print("Statistics=%.3f, p=%.3f" % (stat, p))
 
-
+    def impute_median(self, *args):
+        for col in args:
+            self.df[col] = self.df[col].fillna(self.df[col].median())
 
 
 
