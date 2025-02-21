@@ -108,6 +108,7 @@ class DataFrameInfo:
         missing_values_df = pd.DataFrame({"percentage_missing":percent_missing,
                                           "null_count": null_count
                                           })
+        missing_values_df = missing_values_df.reset_index()
         return missing_values_df
  
 class Plotter:
