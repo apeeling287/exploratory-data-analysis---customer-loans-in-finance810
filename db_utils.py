@@ -2,6 +2,10 @@ import yaml
 from sqlalchemy import create_engine
 import pandas as pd
 from scipy.stats import normaltest
+from statsmodels.graphics.gofplots import qqplot
+from matplotlib import pyplot
+import numpy as np
+import seaborn as sns
 
 
 def load_yaml(yaml_file):
@@ -111,13 +115,6 @@ class DataFrameInfo:
         missing_values_df = missing_values_df.reset_index()
         return missing_values_df
  
-class Plotter:
-    '''
-    visualises insights from the data
-    '''
-    def __init__(self):
-        pass
-
 
 class DataFrameTransform(DataFrameInfo):
     '''
@@ -128,18 +125,57 @@ class DataFrameTransform(DataFrameInfo):
 
     def count_of_nulls(self):
         return super().count_of_nulls()
+        
 
     def drop_columns(self, columns_to_drop):
         self.df = self.df.drop(self.df.columns[columns_to_drop], axis=1)
         return self.df
     
-    def impute(self, columns_to_impute):
+    def drop_rows_with_NaN(self, columns_to_drop):
+        self.df = self.df.dropna(subset=columns_to_drop)
+        return self.df
+    
+    def normaltest(self, columns_to_impute):
         data = self.df[columns_to_impute]
         stat, p = normaltest(data, nan_policy='omit')
         print("Statistics=%.3f, p=%.3f" % (stat, p))
 
+    def impute_median(self, *args):
+        for col in args:
+            self.df[col] = self.df[col].fillna(self.df[col].median())
+        return self.df
+    
+    def impute_mean(self, *args):
+        for col in args:
+            self.df[col] = self.df[col].fillna(self.df[col].median())
+        return self.df
 
 
+
+class Plotter(DataFrameTransform):
+    '''
+    visualises insights from the data
+    '''
+    def __init__(self, df):
+        self.df = df
+
+    def count_of_nulls(self):
+        return super().count_of_nulls()
+    
+    def histogram(self, column):
+        self.df[column].hist(bins=50)
+        print(f"Skew of {column} column is {self.df[column].skew()}")
+    
+    def qq_plot(self, column):
+        qq_plot = qqplot(self.df[column] , scale=1 ,line='q', fit=True)
+        pyplot.show()
+
+    def log_transformation(self, column):
+        log_column = self.df[column].map(lambda i: np.log(i) if i > 0 else 0)
+        t=sns.histplot(log_column,label="Skewness: %.2f"%(log_column.skew()) )
+        t.legend()
+
+    
 
 
 
