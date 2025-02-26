@@ -2,8 +2,10 @@ import yaml
 from sqlalchemy import create_engine
 import pandas as pd
 from scipy.stats import normaltest
+from scipy import stats
+from scipy.stats import yeojohnson
 from statsmodels.graphics.gofplots import qqplot
-from matplotlib import pyplot
+import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
@@ -149,8 +151,37 @@ class DataFrameTransform(DataFrameInfo):
         for col in args:
             self.df[col] = self.df[col].fillna(self.df[col].median())
         return self.df
+    
+    def log_transformation(self, *columns):
+        ## good for positively skewed data 
+        for col in columns:
+            log_column = self.df[col].map(lambda i: np.log(i) if i > 0 else 0)
+            t=sns.histplot(log_column,label="Skewness: %.2f"%(log_column.skew()) )
+            t.legend()
+            self.df[col] = log_column
+        return self.df
+    
+    def boxcox(self, *columns):
+        ## data must be positive 
+        for col in columns:
+            boxcox_column = self.df[col]
+            boxcox_column= stats.boxcox(boxcox_column)
+            boxcox_column= pd.Series(boxcox_column[0])
+            t=sns.histplot(boxcox_column,label="Skewness: %.2f"%(boxcox_column.skew()) )
+            t.legend()
+            self.df[col] = boxcox_column
+        return self.df
 
-
+    def yeojohnson(self, *columns):
+        #can handle negative values
+        for col in columns:
+            yeojohnson_population = self.df[col]
+            yeojohnson_population = stats.yeojohnson(yeojohnson_population)
+            yeojohnson_population= pd.Series(yeojohnson_population[0])
+            t=sns.histplot(yeojohnson_population,label="Skewness: %.2f"%(yeojohnson_population.skew()) )
+            t.legend()
+            self.df[col] = yeojohnson_population
+        return self.df
 
 class Plotter(DataFrameTransform):
     '''
@@ -168,15 +199,39 @@ class Plotter(DataFrameTransform):
     
     def qq_plot(self, column):
         qq_plot = qqplot(self.df[column] , scale=1 ,line='q', fit=True)
-        pyplot.show()
+        plt.show()
 
-    def log_transformation(self, column):
-        log_column = self.df[column].map(lambda i: np.log(i) if i > 0 else 0)
-        t=sns.histplot(log_column,label="Skewness: %.2f"%(log_column.skew()) )
-        t.legend()
+    def log_transformation(self, *columns):
+        ## good for positively skewed data 
+        for col in columns:
+            log_column = self.df[col].map(lambda i: np.log(i) if i > 0 else 0)
+            t=sns.histplot(log_column,label="Skewness: %.2f"%(log_column.skew()) )
+            t.legend()
+        return self.df
 
+    def boxcox(self, *columns):
+        ## data must be positive 
+        for col in columns:
+            boxcox_column = self.df[col]
+            boxcox_column= stats.boxcox(boxcox_column)
+            boxcox_column= pd.Series(boxcox_column[0])
+            t=sns.histplot(boxcox_column,label="Skewness: %.2f"%(boxcox_column.skew()) )
+            t.legend()
+        return self.df
+
+    def yeojohnson(self, *columns):
+        #can handle negative values
+        for col in columns:
+            yeojohnson_population = self.df[col]
+            yeojohnson_population = stats.yeojohnson(yeojohnson_population)
+            yeojohnson_population= pd.Series(yeojohnson_population[0])
+            t=sns.histplot(yeojohnson_population,label="Skewness: %.2f"%(yeojohnson_population.skew()) )
+            t.legend()
+        return self.df
     
-
+    def boxplot(self, columns):
+        self.df.boxplot(column=[columns])
+        
 
 
 if __name__ == "__main__":
@@ -193,3 +248,4 @@ if __name__ == "__main__":
     print(transformed_df)
     df_info = DataFrameInfo(transformed_df)
     df_info.describe_df()
+ 
