@@ -8,6 +8,8 @@ from statsmodels.graphics.gofplots import qqplot
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
+import plotly.express as px
+import statsmodels.formula.api as smf
 
 
 def load_yaml(yaml_file):
@@ -127,10 +129,9 @@ class DataFrameTransform(DataFrameInfo):
 
     def count_of_nulls(self):
         return super().count_of_nulls()
-        
 
     def drop_columns(self, columns_to_drop):
-        self.df = self.df.drop(self.df.columns[columns_to_drop], axis=1)
+        self.df = self.df.drop(columns=columns_to_drop)
         return self.df
     
     def drop_rows_with_NaN(self, columns_to_drop):
@@ -182,6 +183,37 @@ class DataFrameTransform(DataFrameInfo):
             t.legend()
             self.df[col] = yeojohnson_population
         return self.df
+    
+    def zscores(self, column):
+        z = np.abs(stats.zscore(self.df[column]))
+        print(z)
+        #outlier threshold value set to 3
+        threshold_z = 3
+        outlier_indices = np.where(z > threshold_z)[0]
+        no_outliers_df = self.df.drop(self.df.index[outlier_indices], axis=0)
+        print("Original DataFrame Shape:", self.df.shape)
+        print("DataFrame Shape after Removing Outliers:", no_outliers_df.shape)
+        no_outliers_df = self.df
+        return self.df
+        #use z scores for normally distributed data
+
+    def correlation_heatmap(self):
+        px.imshow(self.df.corr(), title=f"Correlation heatmap of {self.df}")
+        fig, ax = plt.subplots(figsize = (20, 10))
+        ax = sns.heatmap(self.df.corr(), annot=True, ax=ax)
+        return ax
+
+    def VIF(self, column1, column2):
+        model1 = smf.ols(column1, self.df).fit()
+        print("model1 summary:")
+        model1.summary()
+        model2 = smf.ols(column2, self.df).fit()
+        print("model2 summary:")
+        model2.summary()
+        vif_column1 = model1.rsquared
+        vif_column2 = model2.rsquared
+        print(f"VIF: \n {column1}: {vif_column1} \n {column2}: {vif_column2}")
+       
 
 class Plotter(DataFrameTransform):
     '''
@@ -225,7 +257,7 @@ class Plotter(DataFrameTransform):
             yeojohnson_population = self.df[col]
             yeojohnson_population = stats.yeojohnson(yeojohnson_population)
             yeojohnson_population= pd.Series(yeojohnson_population[0])
-            t=sns.histplot(yeojohnson_population,label="Skewness: %.2f"%(yeojohnson_population.skew()) )
+            t=sns.histplot(yeojohnson_population,label="Skewness: %.2f"%(yeojohnson_population.skew()))
             t.legend()
         return self.df
     
