@@ -21,11 +21,11 @@ def load_yaml(yaml_file):
     print(credentials_dict)
     return credentials_dict
 
-def df_to_csv(df):
+def df_to_csv(df, file_name):
     '''
     converts dataframe to csv file
     '''
-    df.to_csv("loan_payments.csv")
+    df.to_csv(file_name)
     print("exporting to csv...")
 
 def csv_to_df(csv):
