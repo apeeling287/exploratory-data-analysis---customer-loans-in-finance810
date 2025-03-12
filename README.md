@@ -14,9 +14,8 @@ this project is to display my abilities of data analysis using techniques such a
     - [Subsection 4.2 - dataset plots](#subsection-4.1)
     - [Subsection 4.3 - identifying outliers](#subsection-4.1)
 6. [Section 5 - Dataframe Plots](#section-4)
-    - [Subsection 5.1 - ](#subsection-4.1)
-    - [Subsection 5.2 - ](#subsection-4.1)
-    - [Subsection 5.3 - ](#subsection-4.1)
+    - [Subsection 5.1 - Plots](#subsection-4.1)
+    - [Subsection 5.2 - Data Transformations](#subsection-4.1)
 
 ## Introduction
 This project uses Object Oriented Programming to connect to a RDS and extract data from this database for data transformation, analysis and visualisation purposes
