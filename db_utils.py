@@ -203,16 +203,16 @@ class DataFrameTransform(DataFrameInfo):
         ax = sns.heatmap(self.df.corr(), annot=True, ax=ax)
         return ax
 
-    def VIF(self, column1, column2):
-        model1 = smf.ols(column1, self.df).fit()
-        print("model1 summary:")
-        model1.summary()
-        model2 = smf.ols(column2, self.df).fit()
-        print("model2 summary:")
-        model2.summary()
-        vif_column1 = model1.rsquared
-        vif_column2 = model2.rsquared
-        print(f"VIF: \n {column1}: {vif_column1} \n {column2}: {vif_column2}")
+    # def VIF(self, column1, column2):
+    #     model1 = smf.ols(column1, self.df).fit()
+    #     print("model1 summary:")
+    #     model1.summary()
+    #     model2 = smf.ols(column2, self.df).fit()
+    #     print("model2 summary:")
+    #     model2.summary()
+    #     vif_column1 = model1.rsquared
+    #     vif_column2 = model2.rsquared
+    #     print(f"VIF: \n {column1}: {vif_column1} \n {column2}: {vif_column2}")
        
 
 class Plotter(DataFrameTransform):
@@ -233,33 +233,16 @@ class Plotter(DataFrameTransform):
         qq_plot = qqplot(self.df[column] , scale=1 ,line='q', fit=True)
         plt.show()
 
-    def log_transformation(self, *columns):
-        ## good for positively skewed data 
-        for col in columns:
-            log_column = self.df[col].map(lambda i: np.log(i) if i > 0 else 0)
-            t=sns.histplot(log_column,label="Skewness: %.2f"%(log_column.skew()) )
-            t.legend()
-        return self.df
+    def log_transformation(self):
+       return super().log_transformation()
 
     def boxcox(self, *columns):
         ## data must be positive 
-        for col in columns:
-            boxcox_column = self.df[col]
-            boxcox_column= stats.boxcox(boxcox_column)
-            boxcox_column= pd.Series(boxcox_column[0])
-            t=sns.histplot(boxcox_column,label="Skewness: %.2f"%(boxcox_column.skew()) )
-            t.legend()
-        return self.df
+        return super().boxcox() 
 
     def yeojohnson(self, *columns):
         #can handle negative values
-        for col in columns:
-            yeojohnson_population = self.df[col]
-            yeojohnson_population = stats.yeojohnson(yeojohnson_population)
-            yeojohnson_population= pd.Series(yeojohnson_population[0])
-            t=sns.histplot(yeojohnson_population,label="Skewness: %.2f"%(yeojohnson_population.skew()))
-            t.legend()
-        return self.df
+        return super().yeojohnson()
     
     def boxplot(self, columns):
         self.df.boxplot(column=[columns])
